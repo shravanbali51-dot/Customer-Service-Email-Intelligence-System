@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Dashboard</title>
+</head>
+<body>
+
+<h1>Email Dashboard</h1>
+
+<a href="/logout">Logout</a> |
+<a href="/stats">View Stats</a>
+
+<hr>
+
+<!-- FILTERS -->
+<h3>Filters:</h3>
+
+<p>
+Status:
+<a href="/dashboard">All</a> |
+<a href="/dashboard?status=Pending">Pending</a> |
+<a href="/dashboard?status=Resolved">Resolved</a> |
+<a href="/dashboard?status=Escalated">Escalated</a> |
+<a href="/dashboard?status=Needs Review">Needs Review</a>
+</p>
+
+<p>
+Priority:
+<a href="/dashboard?priority=High">High</a> |
+<a href="/dashboard?priority=Medium">Medium</a> |
+<a href="/dashboard?priority=Low">Low</a>
+</p>
+
+<p>
+Intent:
+<a href="/dashboard?intent=refund">Refund</a> |
+<a href="/dashboard?intent=complaint">Complaint</a> |
+<a href="/dashboard?intent=inquiry">Inquiry</a> |
+<a href="/dashboard?intent=feedback">Feedback</a>
+</p>
+
+<p>
+Sentiment:
+<a href="/dashboard?sentiment=Positive">Positive</a> |
+<a href="/dashboard?sentiment=Neutral">Neutral</a> |
+<a href="/dashboard?sentiment=Negative">Negative</a>
+</p>
+
+<hr>
+
+<!-- SORTING -->
+<h3>Sort By:</h3>
+
+<a href="/dashboard?sort=latest">Latest</a> |
+<a href="/dashboard?sort=high_conf">Highest Confidence</a> |
+<a href="/dashboard?sort=low_conf">Lowest Confidence</a>
+
+<hr>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>ID</th>
+        <th>Subject</th>
+        <th>Sentiment</th>
+        <th>Intent</th>
+        <th>Confidence (%)</th>
+        <th>Priority</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+
+    {% for email in emails %}
+    <tr 
+        {% if email[6] == "Escalated" %}
+            style="background-color:#ffcccc;"
+        {% elif email[6] == "Needs Review" %}
+            style="background-color:#fff3cd;"
+        {% endif %}
+    >
+        <td>{{ email[0] }}</td>
+        <td>{{ email[1] }}</td>
+        <td>{{ email[3] }}</td>
+        <td>{{ email[4] }}</td>
+        <td>{{ email[8] }}%</td>
+        <td>{{ email[7] }}</td>
+        <td>{{ email[6] }}</td>
+        <td>
+            <a href="/edit/{{ email[0] }}">Edit</a> |
+            <a href="/resolve/{{ email[0] }}">Resolve</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>
