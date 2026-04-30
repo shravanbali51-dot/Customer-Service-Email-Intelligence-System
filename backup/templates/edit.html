@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Auto Reply</title>
+</head>
+<body>
+
+<h2>Edit Auto Reply</h2>
+
+<p><strong>Subject:</strong> {{ email[1] }}</p>
+<p><strong>Content:</strong> {{ email[2] }}</p>
+<p><strong>Sentiment:</strong> {{ email[3] }}</p>
+<p><strong>Intent:</strong> {{ email[4] }}</p>
+<p><strong>Confidence:</strong> {{ email[8] }}%</p>
+<p><strong>Priority:</strong> {{ email[7] }}</p>
+<p><strong>Status:</strong> {{ email[6] }}</p>
+
+<hr>
+
+<form method="POST" action="/update/{{ email[0] }}">
+    <label><strong>Edit Auto Reply:</strong></label><br><br>
+    <textarea name="auto_reply" rows="6" cols="70">{{ email[5] }}</textarea>
+    <br><br>
+    <button type="submit">Save Changes</button>
+</form>
+
+<br>
+<a href="/dashboard">Back to Dashboard</a>
+
+</body>
+</html>

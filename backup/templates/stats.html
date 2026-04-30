@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h1>Email Analytics Dashboard</h1>
+
+<a href="/dashboard">Back to Dashboard</a> |
+<a href="/logout">Logout</a>
+
+<hr>
+
+<h3>Overall Summary</h3>
+
+<p><strong>Total Emails:</strong> {{ total }}</p>
+<p><strong>Pending:</strong> {{ pending }}</p>
+<p><strong>Resolved:</strong> {{ resolved }}</p>
+<p><strong>Escalated:</strong> {{ escalated }}</p>
+<p><strong>Needs Review:</strong> {{ review }}</p>
+
+<hr>
+
+<h3>Sentiment Distribution</h3>
+<canvas id="sentimentChart" width="400" height="200"></canvas>
+
+<hr>
+
+<h3>Priority Distribution</h3>
+<canvas id="priorityChart" width="400" height="200"></canvas>
+
+<script>
+    // Sentiment Bar Chart
+    new Chart(document.getElementById("sentimentChart"), {
+        type: "bar",
+        data: {
+            labels: ["Positive", "Neutral", "Negative"],
+            datasets: [{
+                label: "Sentiment Count",
+                data: [{{ positive }}, {{ neutral }}, {{ negative }}],
+                backgroundColor: ["green", "gray", "red"]
+            }]
+        }
+    });
+
+    // Priority Pie Chart
+    new Chart(document.getElementById("priorityChart"), {
+        type: "pie",
+        data: {
+            labels: ["High", "Medium", "Low"],
+            datasets: [{
+                data: [{{ high_priority }}, {{ medium_priority }}, {{ low_priority }}],
+                backgroundColor: ["red", "orange", "green"]
+            }]
+        }
+    });
+</script>
+
+</body>
+</html>
