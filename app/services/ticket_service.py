@@ -4,6 +4,7 @@ from sqlalchemy import func
 
 from app.ai import analyze_email_text
 from app.ai.reply_generator import generate_auto_reply, generate_support_reply
+from app.config import Config
 from app.extensions import db
 from app.models import Admin, Analytics, Reply, Ticket
 
@@ -120,7 +121,7 @@ def is_repeated_ticket(user_id: int, subject: str, message: str) -> bool:
 
 
 def default_admin_id() -> int:
-    admin = Admin.query.filter_by(username="admin_master").first()
+    admin = Admin.query.filter_by(username=Config.DEFAULT_ADMIN_USERNAME).first()
     if admin is None:
         raise RuntimeError("Default admin account is missing.")
     return admin.id

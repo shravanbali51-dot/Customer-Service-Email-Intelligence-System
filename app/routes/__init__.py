@@ -11,6 +11,7 @@ from flask import (
 )
 
 from app.extensions import db
+from app.config import Config
 from app.models import Admin, Ticket, User
 from app.security import (
     clear_auth_session,
@@ -46,7 +47,11 @@ def admin_login():
         password = request.form.get("password", "")
         admin = Admin.query.filter_by(username=username).first()
 
-        if not admin or username != "admin_master" or not verify_password(admin.password_hash, password):
+        if (
+            not admin
+            or username != Config.DEFAULT_ADMIN_USERNAME
+            or not verify_password(admin.password_hash, password)
+        ):
             flash("Invalid admin credentials.", "danger")
             return render_template("admin_login.html"), 401
 

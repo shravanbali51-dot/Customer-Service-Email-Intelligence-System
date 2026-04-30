@@ -38,6 +38,9 @@ def validate_email(email: str) -> str | None:
 
 def ensure_legacy_schema() -> None:
     """Adds required columns when upgrading an older local database."""
+    if db.engine.name != "sqlite":
+        return
+
     rows = db.session.execute(text("PRAGMA table_info(users)")).mappings().all()
     existing = {row["name"] for row in rows}
     if rows and "password_hash" not in existing:

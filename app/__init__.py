@@ -1,4 +1,5 @@
 from flask import Flask
+from dotenv import load_dotenv
 
 from app.config import Config
 from app.extensions import db
@@ -8,6 +9,7 @@ from app.services.ticket_service import is_solved, status_label
 
 
 def create_app() -> Flask:
+    load_dotenv()
     app = Flask(__name__, template_folder="../templates", static_folder="../static")
     app.config.from_object(Config)
 
@@ -23,3 +25,6 @@ def create_app() -> Flask:
         seed_default_admin()
 
     return app
+
+
+app = create_app()
