@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}User Login{% endblock %}
+{% block body %}
+<main class="auth-shell">
+  <a href="{{ url_for('main.index') }}" class="auth-back"><i class="bi bi-arrow-left"></i> Home</a>
+  <section class="auth-panel">
+    <div class="auth-heading">
+      <span class="brand-mark mx-auto"><i class="bi bi-person-check"></i></span>
+      <h1>User Login</h1>
+      <p>Access your private support tickets and admin replies.</p>
+    </div>
+    <form method="post" class="stack-form">
+      <label>Email</label>
+      <input class="form-control" type="email" name="email" autocomplete="email" required>
+      <label>Password</label>
+      <input class="form-control" type="password" name="password" autocomplete="current-password" required>
+      <button class="btn btn-primary w-100" type="submit">Login</button>
+    </form>
+    <p class="auth-note">New user? <a href="{{ url_for('main.user_signup') }}">Create an account</a></p>
+  </section>
+</main>
+{% endblock %}
+

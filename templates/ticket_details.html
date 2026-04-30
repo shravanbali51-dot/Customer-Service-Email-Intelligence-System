@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Ticket #{{ ticket.id }}{% endblock %}
+{% block body %}
+<div class="app-frame compact-frame">
+  <aside class="sidebar">
+    <a class="brand-lockup dashboard-brand" href="{{ url_for('main.index') }}">
+      <span class="brand-mark"><i class="bi bi-headset"></i></span><span>CustomerIQ</span>
+    </a>
+    <nav class="sidebar-nav">
+      {% if admin %}
+      <a href="{{ url_for('main.admin_dashboard') }}"><i class="bi bi-grid"></i> Admin Dashboard</a>
+      <a href="{{ url_for('main.analytics') }}"><i class="bi bi-bar-chart"></i> Analytics</a>
+      {% else %}
+      <a href="{{ url_for('main.user_dashboard') }}"><i class="bi bi-ticket-perforated"></i> My Tickets</a>
+      {% endif %}
+    </nav>
+    <form method="post" action="{{ url_for('main.logout') }}" class="sidebar-logout">
+      <button type="submit"><i class="bi bi-box-arrow-left"></i> Logout</button>
+    </form>
+  </aside>
+
+  <main class="workspace">
+    <section class="dashboard-hero">
+      <div>
+        <span class="eyebrow">Ticket #{{ ticket.id }}</span>
+        <h1>{{ ticket.subject }}</h1>
+        <p>{{ ticket.message }}</p>
+      </div>
+      <span class="tag-pill status-{{ ticket.status|lower }}">{{ status_label(ticket.status) }}</span>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card"><span>Sentiment</span><strong>{{ ticket.sentiment }}</strong><small>AI sentiment analysis</small></article>
+      <article class="stat-card"><span>Intent</span><strong class="small-stat">{{ ticket.intent }}</strong><small>AI intent classification</small></article>
+      <article class="stat-card"><span>Priority</span><strong>{{ ticket.priority }}</strong><small>Priority detection</small></article>
+      <article class="stat-card"><span>Status</span><strong class="small-stat">{{ "Query Solved" if is_solved(ticket.status) else "Not Solved Yet" }}</strong><small>Ticket workflow</small></article>
+    </section>
+
+    {% if admin and ticket.status != "SPAM" and ticket.status != "AUTO_RESOLVED" %}
+    <section class="workspace-panel">
+      <div class="panel-header">
+        <div>
+          <span class="eyebrow">Admin AI Reply System</span>
+          <h2>Generate, edit, and send reply</h2>
+        </div>
+        <form method="post">
+          <input type="hidden" name="action" value="generate">
+          <button class="btn btn-primary" type="submit"><i class="bi bi-stars"></i> Generate AI Reply</button>
+        </form>
+      </div>
+      <form method="post" action="{{ url_for('main.send_ticket_reply', ticket_id=ticket.id) }}" class="analysis-form">
+        <textarea class="form-control" name="reply_body" rows="8" required>{{ draft or (ticket.latest_reply.body if ticket.latest_reply else "") }}</textarea>
+        <div class="analysis-actions">
+          <span>Sending a reply automatically marks the ticket resolved.</span>
+          <button class="btn btn-primary" type="submit"><i class="bi bi-send-check"></i> Send Reply</button>
+        </div>
+      </form>
+    </section>
+    {% elif admin and ticket.status == "SPAM" %}
+    <section class="workspace-panel">
+      <span class="eyebrow">Spam Detection</span>
+      <h2>Moved to spam</h2>
+      <p>This message was identified as spam-like and is excluded from the main admin queue.</p>
+    </section>
+    {% elif admin and ticket.status == "AUTO_RESOLVED" %}
+    <section class="workspace-panel">
+      <span class="eyebrow">Auto Reply</span>
+      <h2>No admin intervention needed</h2>
+      <p>The system sent an appropriate AI reply and marked this query as auto resolved.</p>
+    </section>
+    {% endif %}
+
+    <section class="workspace-panel mt-3">
+      <span class="eyebrow">Admin Reply</span>
+      <h2>Response visible only to this user</h2>
+      {% if ticket.latest_reply %}
+      <p class="reply-box">{{ ticket.latest_reply.body }}</p>
+      {% else %}
+      <p>No admin reply has been sent yet.</p>
+      {% endif %}
+    </section>
+  </main>
+</div>
+{% endblock %}

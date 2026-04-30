@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}User Dashboard{% endblock %}
+{% block body %}
+<div class="app-frame">
+  <aside class="sidebar">
+    <a class="brand-lockup dashboard-brand" href="{{ url_for('main.user_dashboard') }}">
+      <span class="brand-mark"><i class="bi bi-headset"></i></span><span>CustomerIQ</span>
+    </a>
+    <nav class="sidebar-nav">
+      <a class="active" href="{{ url_for('main.user_dashboard') }}"><i class="bi bi-ticket-perforated"></i> My Tickets</a>
+    </nav>
+    <form method="post" action="{{ url_for('main.logout') }}" class="sidebar-logout">
+      <button type="submit"><i class="bi bi-box-arrow-left"></i> Logout</button>
+    </form>
+  </aside>
+
+  <main class="workspace">
+    <header class="workspace-topbar">
+      <div><span class="eyebrow">Signed in</span><strong>{{ user.name }}</strong></div>
+      <span class="avatar avatar-fallback">{{ user.name[:1] }}</span>
+    </header>
+
+    <section class="dashboard-hero">
+      <div>
+        <span class="eyebrow">User Dashboard</span>
+        <h1>Your private support workspace</h1>
+        <p>Submit support queries and view only your own ticket history, status, AI analysis, and admin replies.</p>
+      </div>
+    </section>
+
+    <section class="workspace-panel">
+      <span class="eyebrow">Submit Support Query</span>
+      <h2>New ticket</h2>
+      <form method="post" class="analysis-form">
+        <label class="form-label">Subject</label>
+        <input class="form-control" name="subject" required minlength="5">
+        <label class="form-label mt-3">Message</label>
+        <textarea class="form-control" name="message" rows="5" required minlength="10"></textarea>
+        <div class="analysis-actions">
+          <span><i class="bi bi-cpu"></i> AI analysis runs automatically on submit</span>
+          <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i> Submit Query</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="workspace-panel mt-3">
+      <span class="eyebrow">My Tickets</span>
+      <h2>Ticket history</h2>
+      <div class="table-responsive data-table-wrap">
+        <table class="table data-table align-middle">
+          <thead>
+            <tr>
+              <th>Ticket ID</th>
+              <th>Subject</th>
+              <th>Status</th>
+              <th>AI Analysis</th>
+              <th>Admin Reply</th>
+              <th>Created Date</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ticket in tickets %}
+            <tr>
+              <td>#{{ ticket.id }}</td>
+              <td>{{ ticket.subject }}</td>
+              <td>
+                <span class="tag-pill status-{{ ticket.status|lower }}">{{ status_label(ticket.status) }}</span>
+                <small>{{ "Query Solved" if is_solved(ticket.status) else "Not Solved Yet" }}</small>
+              </td>
+              <td>
+                <span class="tag-pill sentiment-{{ ticket.sentiment|lower }}">{{ ticket.sentiment }}</span>
+                <span class="tag-pill">{{ ticket.intent }}</span>
+                <span class="tag-pill priority-{{ ticket.priority|lower }}">{{ ticket.priority }}</span>
+              </td>
+              <td><small>{{ ticket.latest_reply.body[:90] if ticket.latest_reply else "No admin reply yet." }}</small></td>
+              <td>{{ ticket.created_at.strftime("%b %d, %Y") }}</td>
+              <td><a class="btn btn-sm btn-outline-light" href="{{ url_for('main.ticket_details', ticket_id=ticket.id) }}">View</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center text-muted py-5">You have not submitted any tickets yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}

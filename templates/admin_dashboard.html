@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block body %}
+<div class="app-frame">
+  <aside class="sidebar">
+    <a class="brand-lockup dashboard-brand" href="{{ url_for('main.admin_dashboard') }}">
+      <span class="brand-mark"><i class="bi bi-headset"></i></span><span>CustomerIQ</span>
+    </a>
+    <nav class="sidebar-nav">
+      <a class="active" href="{{ url_for('main.admin_dashboard') }}"><i class="bi bi-grid"></i> Dashboard</a>
+      <a href="{{ url_for('main.analytics') }}"><i class="bi bi-bar-chart"></i> Analytics</a>
+    </nav>
+    <form method="post" action="{{ url_for('main.logout') }}" class="sidebar-logout">
+      <button type="submit"><i class="bi bi-box-arrow-left"></i> Logout</button>
+    </form>
+  </aside>
+
+  <main class="workspace">
+    <header class="workspace-topbar">
+      <div><span class="eyebrow">Admin</span><strong>{{ admin.username }}</strong></div>
+      <span class="avatar avatar-fallback">A</span>
+    </header>
+
+    <section class="dashboard-hero">
+      <div>
+        <span class="eyebrow">Admin Dashboard</span>
+        <h1>All customer support queries</h1>
+        <p>Review manual support cases, inspect AI decisions, track auto replies, and open spam separately.</p>
+      </div>
+      <a class="btn btn-primary" href="{{ url_for('main.analytics') }}"><i class="bi bi-graph-up"></i> Analytics</a>
+    </section>
+
+    <section class="workspace-panel live-analytics">
+      <div class="panel-header">
+        <div>
+          <span class="eyebrow">Live Analytics Section</span>
+          <h2>Operational overview</h2>
+        </div>
+      </div>
+      <div class="analytics-row">
+        <div>
+          <canvas id="statusChart" height="180"></canvas>
+        </div>
+        <div>
+          <canvas id="sentimentChart" height="180"></canvas>
+        </div>
+        <div class="progress-list">
+          <div>
+            <span>Resolved rate</span>
+            <strong>{{ ((stats.resolved / stats.total * 100) if stats.total else 0)|round|int }}%</strong>
+            <div class="progress"><div class="progress-bar bg-success" style="width: {{ ((stats.resolved / stats.total * 100) if stats.total else 0)|round|int }}%"></div></div>
+          </div>
+          <div>
+            <span>Needs review</span>
+            <strong>{{ ((stats.pending / stats.total * 100) if stats.total else 0)|round|int }}%</strong>
+            <div class="progress"><div class="progress-bar bg-warning" style="width: {{ ((stats.pending / stats.total * 100) if stats.total else 0)|round|int }}%"></div></div>
+          </div>
+          <div>
+            <span>Spam rate</span>
+            <strong>{{ ((stats.spam / stats.total * 100) if stats.total else 0)|round|int }}%</strong>
+            <div class="progress"><div class="progress-bar bg-secondary" style="width: {{ ((stats.spam / stats.total * 100) if stats.total else 0)|round|int }}%"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats-grid six-stats">
+      <article class="stat-card"><span>Total Tickets</span><strong>{{ stats.total }}</strong><small>All submitted queries</small></article>
+      <article class="stat-card"><span>Resolved</span><strong>{{ stats.resolved }}</strong><small>Replies sent</small></article>
+      <article class="stat-card"><span>Pending</span><strong>{{ stats.pending }}</strong><small>Awaiting admin action</small></article>
+      <article class="stat-card"><span>Positive Emails</span><strong>{{ stats.positive }}</strong><small>Healthy customer tone</small></article>
+      <article class="stat-card"><span>Neutral Emails</span><strong>{{ stats.neutral }}</strong><small>Standard support queue</small></article>
+      <article class="stat-card"><span>Negative Emails</span><strong>{{ stats.negative }}</strong><small>Needs careful handling</small></article>
+      <article class="stat-card"><span>Spam Emails</span><strong>{{ stats.spam }}</strong><small>Hidden from main queue</small></article>
+    </section>
+
+    <section class="workspace-panel">
+      <div class="panel-header">
+        <div>
+          <span class="eyebrow">Ticket Queue</span>
+          <h2>{{ "Spam section" if view == "spam" else "Admin review queue" }}</h2>
+        </div>
+        <div class="btn-group">
+          <a class="btn btn-sm {{ 'btn-primary' if view != 'spam' else 'btn-outline-dark' }}" href="{{ url_for('main.admin_dashboard') }}">Main Queue</a>
+          <a class="btn btn-sm {{ 'btn-primary' if view == 'spam' else 'btn-outline-dark' }}" href="{{ url_for('main.admin_dashboard', view='spam') }}">Spam</a>
+        </div>
+      </div>
+      <div class="table-responsive data-table-wrap">
+        <table class="table data-table align-middle">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Subject</th>
+              <th>Status</th>
+              <th>AI Features</th>
+              <th>Created</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ticket in tickets %}
+            <tr class="ticket-row status-row-{{ ticket.status|lower }} priority-row-{{ ticket.priority|lower }}">
+              <td><strong>{{ ticket.user.name }}</strong><small>{{ ticket.user.email }}</small></td>
+              <td><span class="subject-cell">{{ ticket.subject }}</span><small>{{ ticket.message[:110] }}{% if ticket.message|length > 110 %}...{% endif %}</small></td>
+              <td><span class="tag-pill status-{{ ticket.status|lower }}">{{ status_label(ticket.status) }}</span></td>
+              <td>
+                <span class="tag-pill sentiment-{{ ticket.sentiment|lower }}">{{ ticket.sentiment }}</span>
+                <span class="tag-pill">{{ ticket.intent }}</span>
+                <span class="tag-pill priority-{{ ticket.priority|lower }}">{{ ticket.priority }}</span>
+              </td>
+              <td>{{ ticket.created_at.strftime("%b %d, %Y %I:%M %p") }}</td>
+              <td><a class="btn btn-sm btn-primary" href="{{ url_for('main.ticket_details', ticket_id=ticket.id) }}">Open</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="text-center text-muted py-5">No tickets submitted yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  window.analyticsData = {
+    status: {
+      labels: ["Needs Review", "In Progress", "Auto Resolved", "Resolved", "Spam"],
+      values: [{{ stats.pending }}, {{ stats.in_progress }}, {{ stats.auto_resolved }}, {{ stats.resolved - stats.auto_resolved }}, {{ stats.spam }}],
+    },
+    sentiment: {
+      labels: ["Positive", "Neutral", "Negative"],
+      values: [{{ stats.positive }}, {{ stats.neutral }}, {{ stats.negative }}],
+    },
+  };
+</script>
+{% endblock %}
